@@ -1,6 +1,7 @@
 import java.util.*;
 
 class Solution {
+
     static class SegmentTree {
         int n;
         int[] tree;
@@ -35,6 +36,7 @@ class Solution {
             if (ql <= l && r <= qr) return tree[node];
 
             int mid = (l + r) / 2;
+
             return Math.max(
                 query(node * 2, l, mid, ql, qr),
                 query(node * 2 + 1, mid + 1, r, ql, qr)
@@ -48,21 +50,23 @@ class Solution {
     }
 
     public List<Boolean> getResults(int[][] queries) {
-        int MAX = 50000;
+
+        int SENTINEL = 50001;
 
         TreeSet<Integer> obstacles = new TreeSet<>();
         obstacles.add(0);
-        obstacles.add(MAX);
+        obstacles.add(SENTINEL);
 
-        SegmentTree seg = new SegmentTree(MAX + 1);
+        SegmentTree seg = new SegmentTree(SENTINEL + 1);
 
-        // Initial gap: [0, MAX]
-        seg.update(MAX, MAX);
+        seg.update(SENTINEL, SENTINEL);
 
         List<Boolean> ans = new ArrayList<>();
 
         for (int[] q : queries) {
+
             if (q[0] == 1) {
+
                 int x = q[1];
 
                 int prev = obstacles.lower(x);
@@ -70,22 +74,17 @@ class Solution {
 
                 obstacles.add(x);
 
-                // New gap ending at x
                 seg.update(x, x - prev);
-
-                // Update gap ending at next
                 seg.update(next, next - x);
 
             } else {
+
                 int x = q[1];
                 int sz = q[2];
 
                 int pre = obstacles.floor(x);
 
-                // Largest complete gap ending at an obstacle <= pre
                 int bestGap = seg.query(0, pre);
-
-                // Partial gap from pre obstacle to x
                 bestGap = Math.max(bestGap, x - pre);
 
                 ans.add(bestGap >= sz);
